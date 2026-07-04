@@ -1,0 +1,33 @@
+<h1>CEFR Writing Level Classifier</h1>
+<p class="subtitle">Angular implementation</p>
+
+<textarea
+  id="text-input"
+  placeholder="Paste student writing here..."
+  [(ngModel)]="text"
+></textarea>
+<br />
+<button
+  id="submit-btn"
+  (click)="handleSubmit()"
+  [disabled]="status() === 'loading'"
+>
+  Classify
+</button>
+
+<div id="result-area">
+  @if (status() === 'loading') {
+    <p class="loading">Classifying...</p>
+  }
+
+  @if (status() === 'success' && predictions().length > 0) {
+    <div class="result-card">
+      <div class="result-level">{{ predictions()[0].label }}</div>
+      <div class="result-scores">{{ formatScores() }}</div>
+    </div>
+  }
+
+  @if (status() === 'error') {
+    <div class="error-card">Error: {{ errorMessage() }}</div>
+  }
+</div>
