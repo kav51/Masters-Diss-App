@@ -1,12 +1,4 @@
-"""
-main.py — Local backend for the CEFR classifier
---------------------------------------------------
-Loads the theluantran/cefr-bert-classifier model once when the server starts,
-then exposes a single POST /classify endpoint that all three frontends
-(Vanilla, React, Angular) will call.
 
-Run with: uvicorn main:app --reload
-"""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,10 +7,6 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
 app = FastAPI()
-
-# Allow requests from your frontend files (running on Live Server, localhost, etc.)
-# during development. This is fine for a dissertation project; you would lock
-# this down for a real production system.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

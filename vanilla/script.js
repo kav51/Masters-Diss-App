@@ -1,9 +1,4 @@
-/*
-  script.js — Vanilla JS implementation
-  --------------------------------------
-  Calls the local FastAPI backend (http://127.0.0.1:8000/classify) which
-  wraps the CEFR model. No frameworks, manual DOM manipulation only.
-*/
+
 
 const BACKEND_URL = "http://127.0.0.1:8000/classify";
 
