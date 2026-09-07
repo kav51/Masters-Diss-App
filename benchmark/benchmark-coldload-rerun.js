@@ -1,13 +1,4 @@
-// benchmark-coldload-rerun.js
-// ------------------------------
-// Re-runs ONLY the cold-load scenario, with a faster heap polling
-// interval (10ms instead of 100ms). The original 100ms interval never
-// fired during E1 cold-load runs (which complete in ~35-65ms), leaving
-// peakHeapKB as 0 - not a real reading, just a measurement gap.
-//
-// Results are appended to their own CSV, to be combined with the
-// cold-load rows from the original run later (or used to fully replace
-// them, since this version is strictly more accurate).
+
 
 const { chromium } = require('playwright');
 const fs = require('fs');

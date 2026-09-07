@@ -1,13 +1,4 @@
-// benchmark-full.js
-// -------------------
-// Full benchmarking run: executes the single-submission scenario 30 times
-// per framework/environment combination (9 combinations x 30 = 270 runs
-// total), and appends each individual result as a row to a CSV file.
-//
-// Results are written incrementally (one line per completed run) rather
-// than all at once at the end, so that if something crashes or a server
-// drops partway through a long run, you don't lose everything already
-// collected - just resume by checking how many rows exist so far.
+
 
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -15,8 +6,7 @@ const path = require('path');
 
 const TEST_TEXT = 'I goes to school every day and I like very much.';
 const REPETITIONS = 30;
-const SCENARIO_NAME = 'single-submission'; // one of the 4 planned scenarios
-
+const SCENARIO_NAME = 'single-submission'; 
 const FRAMEWORKS = [
   { name: 'Vanilla', url: 'http://127.0.0.1:5500/vanilla/index.html' },
   { name: 'React', url: 'http://localhost:5174/' },
@@ -71,13 +61,11 @@ async function runScenario(frameworkUrl, env) {
         peakHeapBytes = heapMetric.value;
       }
     } catch {
-      // Page may have navigated/closed mid-poll - safe to ignore.
+    
     }
   }, 100);
 
-  // TTI listener, handling the case where 'load' has already fired by the
-  // time the init script runs (readyState check), as well as the normal
-  // case where it hasn't fired yet.
+  
   await page.addInitScript(() => {
     window.__ttiPromise = new Promise((resolve) => {
       if (document.readyState === 'complete') {

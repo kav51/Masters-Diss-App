@@ -1,26 +1,8 @@
-"""
-analyse.py
------------
-Statistical analysis of the benchmarking harness results, per the
-methodology described in the dissertation's Plan section:
-
-1. Median + IQR per framework/scenario/environment/metric
-2. Kruskal-Wallis test across the three frameworks, for each
-   scenario/environment/metric combination, with Bonferroni correction
-3. Where a significant effect is found, pairwise Mann-Whitney U tests
-   between framework pairs
-4. Cohen's d effect size for each significant pairwise comparison
-5. Degradation gradient: does the gap between frameworks widen from
-   E1 to E3?
-
-Run with: python analyse.py
-"""
 
 import pandas as pd
 from scipy import stats
 from itertools import combinations
 
-# ---- Load data ----
 CSV_PATH = "../benchmark/results/results-MERGED-1788364838373.csv"  # update if your filename differs
 df = pd.read_csv(CSV_PATH)
 
@@ -29,9 +11,7 @@ ENVIRONMENTS = ["E1", "E2", "E3"]
 FRAMEWORKS = ["Vanilla", "React", "Angular"]
 METRICS = ["timeMs", "ttiMs", "peakHeapKB"]
 
-# Bonferroni correction: significance threshold divided by number of
-# comparisons being made, to control the false-positive rate across many
-# tests (per the methodology).
+
 ALPHA = 0.05
 NUM_COMPARISONS = len(SCENARIOS) * len(ENVIRONMENTS) * len(METRICS)
 BONFERRONI_ALPHA = ALPHA / NUM_COMPARISONS
@@ -104,7 +84,7 @@ def interpret_d(d):
         return "large"
 
 
-# ---- Step 1: Median + IQR summary table ----
+
 print("=" * 100)
 print("STEP 1: Median + IQR summary")
 print("=" * 100)
@@ -133,7 +113,7 @@ summary_df.to_csv("summary-median-iqr.csv", index=False)
 print("Saved: summary-median-iqr.csv")
 print(summary_df.to_string(index=False))
 
-# ---- Step 2-4: Kruskal-Wallis, Mann-Whitney U, Cohen's d ----
+
 print("\n" + "=" * 100)
 print(f"STEP 2-4: Kruskal-Wallis (Bonferroni alpha = {BONFERRONI_ALPHA:.6f}), pairwise Mann-Whitney U, Cohen's d")
 print("=" * 100)
@@ -156,7 +136,7 @@ for scenario in SCENARIOS:
             if len(groups) < 2:
                 continue
 
-            # Kruskal-Wallis across all frameworks present for this combo.
+            
             h_stat, p_value = stats.kruskal(*groups.values())
             significant = p_value < BONFERRONI_ALPHA
 
@@ -176,7 +156,7 @@ for scenario in SCENARIOS:
                 f"{'*** SIGNIFICANT ***' if significant else '(not significant)'}"
             )
 
-            # If significant, run pairwise Mann-Whitney U + Cohen's d.
+           
             if significant:
                 for fw_a, fw_b in combinations(groups.keys(), 2):
                     u_stat, mw_p = stats.mannwhitneyu(
@@ -214,7 +194,7 @@ results_df = pd.DataFrame(test_results)
 results_df.to_csv("statistical-tests.csv", index=False)
 print("\nSaved: statistical-tests.csv")
 
-# ---- Step 5: Degradation gradient ----
+
 print("\n" + "=" * 100)
 print("STEP 5: Degradation gradient (E3 median / E1 median) per framework/scenario/metric")
 print("=" * 100)

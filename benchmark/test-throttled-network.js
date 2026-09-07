@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
 const TEST_TEXT = 'I goes to school every day and I like very much.';
 const APP_URL = 'http://127.0.0.1:5500/vanilla/index.html';
 
-// Convert Mbps to bytes/second, which is what CDP expects.
+.
 const MBPS_TO_BYTES_PER_SEC = (mbps) => (mbps * 1024 * 1024) / 8;
 
 async function runScenario(config) {
@@ -17,11 +17,10 @@ async function runScenario(config) {
   const page = await browser.newPage();
   const client = await page.context().newCDPSession(page);
 
-  // CPU throttling.
+
   await client.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
 
-  // Network throttling. Setting downloadThroughput/uploadThroughput to -1
-  // means "no throttling" for that direction.
+ 
   await client.send('Network.emulateNetworkConditions', {
     offline: false,
     downloadThroughput: networkMbps ? MBPS_TO_BYTES_PER_SEC(networkMbps) : -1,

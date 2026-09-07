@@ -1,19 +1,11 @@
-// benchmark-scenarios.js
-// ------------------------
-// Runs all four planned scenarios (cold load, single submission, stress
-// test, error handling) across all three frameworks and all three
-// environments. Each scenario is its own function, sharing common setup
-// (throttling, TTI/heap capture) via a helper.
-//
-// Results are appended incrementally to a single CSV, same as
-// benchmark-full.js, with the 'scenario' column distinguishing rows.
+
 
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
 const TEST_TEXT = 'I goes to school every day and I like very much.';
-const REPETITIONS = 30; // set to a small number (e.g. 3) for a quick test run first
+const REPETITIONS = 30; 
 
 const FRAMEWORKS = [
   { name: 'Vanilla', url: 'http://127.0.0.1:5500/vanilla/index.html' },
@@ -43,7 +35,7 @@ function appendResultRow(row) {
   fs.appendFileSync(CSV_PATH, line);
 }
 
-// --- Shared setup: launches a throttled browser + starts heap polling ---
+
 async function setupThrottledPage(frameworkUrl, env) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
@@ -65,7 +57,7 @@ async function setupThrottledPage(frameworkUrl, env) {
       const heapMetric = metrics.find((m) => m.name === 'JSHeapUsedSize');
       if (heapMetric && heapMetric.value > peakHeapBytes) peakHeapBytes = heapMetric.value;
     } catch {
-      // ignore - page may be mid-navigation
+     
     }
   }, 100);
 
@@ -84,9 +76,7 @@ async function setupThrottledPage(frameworkUrl, env) {
   return { browser, page, heapPollInterval, getPeakHeapKB: () => Math.round(peakHeapBytes / 1024) };
 }
 
-// --- Scenario 1: Cold Load ---
-// Measures pure page load/initialization cost. No interaction at all -
-// isolates framework startup overhead from classification work.
+
 async function scenarioColdLoad(frameworkUrl, env) {
   const { browser, page, heapPollInterval, getPeakHeapKB } = await setupThrottledPage(frameworkUrl, env);
 
@@ -101,8 +91,7 @@ async function scenarioColdLoad(frameworkUrl, env) {
   return { result: 'N/A', timeMs: totalTimeMs, ttiMs: Math.round(ttiMs), peakHeapKB: getPeakHeapKB() };
 }
 
-// --- Scenario 2: Single Submission ---
-// (Your existing scenario - one classify request, measured end to end.)
+
 async function scenarioSingleSubmission(frameworkUrl, env) {
   const { browser, page, heapPollInterval, getPeakHeapKB } = await setupThrottledPage(frameworkUrl, env);
 
@@ -123,11 +112,7 @@ async function scenarioSingleSubmission(frameworkUrl, env) {
   return { result: resultText, timeMs: totalTimeMs, ttiMs: Math.round(ttiMs), peakHeapKB: getPeakHeapKB() };
 }
 
-// --- Scenario 3: Stress Test ---
-// Submits 5 requests in rapid succession (without waiting for each to
-// fully settle before starting the next click), simulating a user
-// impatiently re-submitting, or rapid repeated use. Measures total time
-// for all 5 to complete and the final result shown.
+
 async function scenarioStressTest(frameworkUrl, env) {
   const { browser, page, heapPollInterval, getPeakHeapKB } = await setupThrottledPage(frameworkUrl, env);
 
@@ -139,8 +124,7 @@ async function scenarioStressTest(frameworkUrl, env) {
   for (let i = 0; i < SUBMISSIONS; i++) {
     await page.fill('#text-input', `${TEST_TEXT} (submission ${i + 1})`);
     await page.click('#submit-btn');
-    // Deliberately short/no wait between clicks - this is the "stress" part.
-    // Only the LAST submission's result is waited on and recorded.
+
     if (i < SUBMISSIONS - 1) {
       await page.waitForTimeout(50);
     }
@@ -156,16 +140,10 @@ async function scenarioStressTest(frameworkUrl, env) {
   return { result: resultText, timeMs: totalTimeMs, ttiMs: Math.round(ttiMs), peakHeapKB: getPeakHeapKB() };
 }
 
-// --- Scenario 4: Error Handling ---
-// Submits with the backend deliberately unreachable (by routing the
-// /classify request to a nonexistent port), measuring how quickly and
-// reliably each frontend surfaces its error state.
 async function scenarioErrorHandling(frameworkUrl, env) {
   const { browser, page, heapPollInterval, getPeakHeapKB } = await setupThrottledPage(frameworkUrl, env);
 
-  // Intercept the classify request and force it to fail, rather than
-  // actually stopping the real backend (which would affect other
-  // scenarios/frameworks running around the same time).
+ 
   await page.route('**/classify', (route) => route.abort('connectionrefused'));
 
   const startTime = Date.now();

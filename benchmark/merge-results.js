@@ -1,17 +1,4 @@
-// merge-results.js
-// -------------------
-// Combines the original full scenario run (1080 rows, but with a
-// cold-load heap measurement bug at E1) with the corrected cold-load
-// rerun (270 rows, heap bug fixed).
-//
-// Logic: take the original file, DROP all its cold-load rows (they're
-// superseded), then ADD the corrected cold-load rows from the rerun file.
-// Everything else (single-submission, stress-test, error-handling) is
-// kept as-is from the original, since those were never affected by the
-// bug.
-//
-// USAGE: update the two filenames below to match your actual files in
-// the results/ folder, then run: node merge-results.js
+
 
 const fs = require('fs');
 const path = require('path');
@@ -36,7 +23,7 @@ function readCsvLines(filename) {
 const original = readCsvLines(ORIGINAL_FILE);
 const coldloadRerun = readCsvLines(COLDLOAD_RERUN_FILE);
 
-// Sanity check: headers should match exactly.
+
 if (original.header !== coldloadRerun.header) {
   console.error('ERROR: CSV headers do not match between the two files. Aborting merge.');
   console.error('Original header:', original.header);
@@ -44,7 +31,6 @@ if (original.header !== coldloadRerun.header) {
   process.exit(1);
 }
 
-// Drop cold-load rows from the original (they start with "cold-load,").
 const originalWithoutColdLoad = original.rows.filter((line) => !line.startsWith('cold-load,'));
 
 const droppedCount = original.rows.length - originalWithoutColdLoad.length;
